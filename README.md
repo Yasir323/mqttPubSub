@@ -14,6 +14,17 @@ Run the following command to start all the services:
    * An endpoint that allows users to fetch sensor readings by specifying a start and end range. Sample request: `http://172.18.0.7:8000/readings/?sensor_id=1&start=2023-08-20T00:00:00&end=2023-08-24T00:00:00`
    * An endpoint to retrieve the last ten sensor readings for a specific sensor. Sample request: `http://172.18.0.7:8000/readings/10`
    The API is using Basic Authentication with dummy username set to 'user' and password set to 'password', these can also be configured from the `api/main.py`. Basic Auth was chosen for the sake of simplicity, otherwise JWT based authentication is obviously a better choice.
+### Sending request to the API endpoints
+1. List docker containers:
+`sudo docker ps`
+2. Copy the ID of the container named `mqttsensorsimulator-api`
+3. Get the IP address:
+`sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_id_or_name`
+4. Hit the endpoit using the IP address like this. Suppose the IP address is `172.18.0.7`, the the requests would be:
+`http://172.18.0.7:8000/readings/?sensor_id=1&start=2023-08-20T00:00:00&end=2023-08-24T00:00:00`
+and
+`http://172.18.0.7:8000/readings/10`
+**Don't forget to add Authentication**.
 
 ### Challenges
 Setting the network for the services to communicate with each other was the most challenging part.
