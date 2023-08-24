@@ -9,6 +9,7 @@ import redis
 
 NUM_WORKERS = int(os.environ.get("NUM_WORKERS"))
 BATCH_SIZE = int(os.environ.get("BATCH_SIZE"))
+TOPIC = os.environ.get("TOPIC")
 
 # Replace with the IP address of the MQTT broker
 BROKER_HOST = os.environ.get("BROKER_HOST")
@@ -113,7 +114,7 @@ def main():
     workers = [Worker(message_queue, redis_client) for _ in range(NUM_WORKERS)]
     for worker in workers:
         worker.start()
-    topics = ("temperatureReadings",)
+    topics = (TOPIC,)
     with Subscriber(BROKER_HOST, BROKER_PORT, 60, message_queue, topics=topics) as subscriber:
         subscriber.start()
     message_queue.join()

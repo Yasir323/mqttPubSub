@@ -9,6 +9,7 @@ BROKER_HOST = os.environ.get("BROKER_HOST")
 BROKER_PORT = int(os.environ.get("BROKER_PORT"))
 NUM_DEVICES = int(os.environ.get("NUM_DEVICES"))
 RATE_OF_PUBLISH = int(os.environ.get("RATE_OF_PUBLISH"))
+TOPIC = os.environ.get("TOPIC")
 
 
 class Publisher:
@@ -48,7 +49,7 @@ def main():
         while True:
             for i in range(NUM_DEVICES):
                 temperature_reading = generate_reading(i)
-                publisher.publish("temperatureReadings", temperature_reading)
+                publisher.publish(TOPIC, temperature_reading)
                 time.sleep(RATE_OF_PUBLISH/NUM_DEVICES)
 
 

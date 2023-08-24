@@ -53,6 +53,7 @@ services:
       BROKER_PORT: ${BROKER_PORT}
       NUM_DEVICES: ${NUM_DEVICES}
       RATE_OF_PUBLISH: ${RATE_OF_PUBLISH}
+      TOPIC: ${TOPIC}
 
   subscriber:
     build:
@@ -65,6 +66,7 @@ services:
       - mqtt_network
     environment:
       NUM_WORKERS: ${NUM_WORKERS}
+      TOPIC: ${TOPIC}
       BATCH_SIZE: ${BATCH_SIZE}
       BROKER_HOST: ${BROKER_HOST}
       BROKER_PORT: ${BROKER_PORT}
