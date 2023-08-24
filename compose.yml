@@ -1,0 +1,109 @@
+version: "3"
+services:
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker
+    ports:
+      - "8883:8883"
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - mqtt_network
+
+  mongodb:
+    image: mongo
+    restart: always
+    container_name: mqtt_mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - mqtt_network
+    volumes:
+      - mongodb-data:/data/db  # Volume for data persistence
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+  redis:
+    image: redis
+    container_name: mqtt_redis
+    restart: on-failure  # Restart policy
+    volumes:
+      - redis-data:/data  # Volume for data persistence
+    ports:
+      - "6379:6379"
+    networks:
+      - mqtt_network
+  
+  publisher:
+    build:
+      context: ./publisher  # Directory containing publisher Dockerfile
+    depends_on:
+      - redis
+      - mongodb
+      - mosquitto
+    networks:
+      - mqtt_network
+    environment:
+      BROKER_HOST: ${BROKER_HOST}
+      BROKER_PORT: ${BROKER_PORT}
+      NUM_DEVICES: ${NUM_DEVICES}
+      RATE_OF_PUBLISH: ${RATE_OF_PUBLISH}
+
+  subscriber:
+    build:
+      context: ./subscriber  # Directory containing subscriber Dockerfile
+    depends_on:
+      - redis
+      - mongodb
+      - mosquitto
+    networks:
+      - mqtt_network
+    environment:
+      NUM_WORKERS: ${NUM_WORKERS}
+      BATCH_SIZE: ${BATCH_SIZE}
+      BROKER_HOST: ${BROKER_HOST}
+      BROKER_PORT: ${BROKER_PORT}
+      MONGO_HOST: ${MONGO_HOST}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_COL: ${MONGO_COL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_DB: ${REDIS_DB}
+    
+  api:
+    build:
+      context: ./api
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - mqtt_network
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      MONGO_HOST: ${MONGO_HOST}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_COL: ${MONGO_COL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_DB: ${REDIS_DB}
+
+networks:
+  mqtt_network:
+
+volumes:
+  mongodb-data:
+  redis-data:
