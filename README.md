@@ -6,7 +6,7 @@ Run the following command to start all the services:
 
 ### A detailed overview of each service and design choices.
 1. **Mosquitto MQTT Broker:** This is the mqtt broker (eclipse-mosquitto). Here's the <a href="https://hub.docker.com/_/eclipse-mosquitto">documentation</a>.
-2. **Publisher:** The publisher publishes message to the broker, the topic can be configured in .env file by default it is `temperatureReadings`. The number of publishers and the rate at which each device pub;ishes data can also be configured in the .env file.
+2. **Publisher:** The publisher publishes message to the broker, the topic can be configured in .env file by default it is `temperatureReadings`. The number of publishers and the rate at which each device publishes data can also be configured in the .env file. Also, for the sake of simplicity, threads have not been used for simulating `n` publishers.
 3. **Subscriber:** The subscriber subcribes to a given topic and the moment it receives a message, it is pushed to a queue. A worker thread is listening to the queue and it updates the latest readings in redis and when the number of readings reaches the `BATCH_SIZE`, it pushes the batch to mongo. By default the Nnumber of workers is set to 1 and batch size is set to 100, both of which can be configured in the .env config file.
 4. **Redis:** This is the <a href="https://hub.docker.com/_/redis">official redis docker image</a> available on docker hub.
 5. **MongoDB:** This is the <a href="https://hub.docker.com/_/mongo">official mongo docker image</a> available on docker hub.
